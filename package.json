@@ -1,0 +1,11 @@
+{
+  "name": "zenalert",
+  "version": "1.0.0",
+  "description": "Better ZenHub Alerts!",
+  "main": "index.js",
+  "author": "Nilesh Rathi",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.18.0"
+  }
+}
