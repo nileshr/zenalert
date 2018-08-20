@@ -16,6 +16,8 @@ const EVENT_MAP = {
 exports.handler = (event, context, callback) => {
   if (event.body) {
     const data = querystring.parse(event.body);
+    const eventTypes = (process.env.EVENT_TYPES || "").split(",").map(t => t.trim());
+    const pipelines = (process.env.PIPELINES || "").split(",").map(p => p.trim());
     let text;
     if (eventTypes.includes(data.type)) {
       switch (data.type) {
