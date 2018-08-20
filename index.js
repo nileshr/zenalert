@@ -1,5 +1,4 @@
 const axios = require("axios");
-const webhook = process.env.SLACK_WEBHOOK_URL;
 const querystring = require("querystring");
 
 const buildIssue = data => `<${data.github_url}|#${data.issue_number} ${data.issue_title}>`;
@@ -16,8 +15,9 @@ const EVENT_MAP = {
 exports.handler = (event, context, callback) => {
   if (event.body) {
     const data = querystring.parse(event.body);
-    const eventTypes = (process.env.EVENT_TYPES || "").split(",").map(t => t.trim());
-    const pipelines = (process.env.PIPELINES || "").split(",").map(p => p.trim());
+    const { SLACK_WEBHOOK_URL, EVENT_TYPES, PIPELINES } = process.env;
+    const eventTypes = (EVENT_TYPES || "").split(",").map(t => t.trim());
+    const pipelines = (PIPELINES || "").split(",").map(p => p.trim());
     let text;
     if (eventTypes.includes(data.type)) {
       switch (data.type) {
@@ -39,7 +39,7 @@ exports.handler = (event, context, callback) => {
           text = null;
       }
       if (text) {
-        axios.post(webhook, { text }).catch(console.log);
+        axios.post(SLACK_WEBHOOK_URL, { text }).catch(console.log);
         callback(null, {
           statusCode: "200",
           headers: { "Content-Type": "application/json" },
