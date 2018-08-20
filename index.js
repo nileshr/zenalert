@@ -39,7 +39,7 @@ exports.handler = (event, context, callback) => {
           text = null;
       }
       if (text) {
-        axios.post(webhook, { text });
+        axios.post(webhook, { text }).catch(console.log);
         callback(null, {
           statusCode: "200",
           headers: { "Content-Type": "application/json" },
