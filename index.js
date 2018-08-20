@@ -3,8 +3,6 @@ const querystring = require("querystring");
 
 const buildIssue = data => `<${data.github_url}|#${data.issue_number} ${data.issue_title}>`;
 
-const transferMessage = data => `${data.user_name} moved ${buildIssue(data)} to ${data.to_pipeline_name}`;
-
 const EVENT_MAP = {
   ISSUE_TRANSFER: "issue_transfer",
   ESTIMATE_SET: "estimate_set",
@@ -23,8 +21,12 @@ exports.handler = (event, context, callback) => {
       switch (data.type) {
         case EVENT_MAP.ISSUE_TRANSFER:
           if (pipelines.length > 0) {
-            if (pipelines.includes(data.to_pipeline_name)) text = transferMessage(data);
-          } else text = transferMessage(data);
+            if (pipelines.includes(data.to_pipeline_name)) {
+              text = `${data.user_name} created ${buildIssue(data)} in ${data.to_pipeline_name}`;
+            } // No else - Ignore if not in filtered pipeline!
+          } else {
+            text = `${data.user_name} moved ${buildIssue(data)} to ${data.to_pipeline_name}`;
+          }
           break;
         case EVENT_MAP.ESTIMATE_SET:
           text = `${data.user_name} set an estimate of ${data.estimate} for ${buildIssue(data)}`;
