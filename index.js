@@ -14,7 +14,7 @@ const tagMap = JSON.parse(TAG_MAP);
 
 const buildIssue = data => `<${data.github_url}|#${data.issue_number} ${data.issue_title}>`;
 const moveIssue = data =>
-  `${data.user_name} moved ${buildIssue(data)} to ${data.to_pipeline_name} ${tagMap[data.to_pipeline_name]}`;
+  `${data.user_name} moved ${buildIssue(data)} to ${data.to_pipeline_name} ${tagMap[data.to_pipeline_name] || ""}`.trim();
 
 exports.handler = (event, context, callback) => {
   if (event.body) {
