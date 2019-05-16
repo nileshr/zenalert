@@ -11,9 +11,9 @@ This can become overwhelming for large projects, and so we need to use [Zenhub's
 
 ## How?
 
-- Clone this repo and install the dependency. (Run `npm install` or `yarn` in project root).
-- Create the deployment package by zipping the project folder (On MacOS, Run `zip -r build.zip *` in project root).
-- Create a Lambda function in AWS with basic lambda execution policy and upload the build zip.
+- Download the latest build from [releases](https://github.com/nileshr/zenalert/releases/latest). 
+- Alternatively, if you want to build it yourself, clone this repo and install the dependency. (Run `npm install` or `yarn` in project root) and create the deployment package by zipping the project folder (On MacOS, Run `zip -r build.zip *` in project root).
+- Create a Lambda function in AWS with basic lambda execution policy and upload the build.zip.
 - Set [API Gateway as the trigger](https://docs.aws.amazon.com/lambda/latest/dg/invoking-lambda-function.html#supported-event-source-api-gateway) and provide a name to the API. Configure authentication as open, since ZenHub can only trigger open webhooks. Copy the _execution url_ provided by API Gateway after saving the changes.
 - To control what events are sent, set `EVENT_TYPES` environment variable to one of possible Zenhub event types. Also accepts multiple comma separated values. (`issue_transfer`, `estimate_set`, `estimate_cleared`, `issue_reprioritized`).
 - [Create an incoming webhook on Slack](https://get.slack.help/hc/en-us/articles/115005265063-Incoming-WebHooks-for-Slack) and set the url in the `SLACK_WEBHOOK_URL` environment variable.
