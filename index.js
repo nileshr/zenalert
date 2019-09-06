@@ -82,19 +82,21 @@ exports.handler = (event, _, callback) => {
           )
           .then(response => {
             // Not doing a strict equality check since types are different
-            const blockerIssue = response.data.dependencies.find(
+            const blockerIssues = response.data.dependencies.filter(
               issue => issue.blocking.issue_number == data.issue_number
             );
-            if (blockerIssue) {
-              const blockedIssueUrl = `https://app.zenhub.com/workspace/o/${data.user_name}/${data.repo}/issues/${blockerIssue.blocked.issue_number}`;
-              text = `The issue ${buildIssue(data)} is now ${
-                data.to_pipeline_name
-              } 🎉🎉 It was a blocker for ${blockedIssueUrl} ${tagMap[
-                "Dependencies"
-              ] || ""}`;
-              axios
-                .post(SLACK_WEBHOOK_URL, { text, link_names: 1 })
-                .catch(console.log);
+            if (blockerIssues && blockerIssues.length > 0) {
+              blockerIssues.forEach(blockerIssue => {
+                const blockedIssueUrl = `https://app.zenhub.com/workspace/o/${data.user_name}/${data.repo}/issues/${blockerIssue.blocked.issue_number}`;
+                text = `The issue ${buildIssue(data)} is now ${
+                  data.to_pipeline_name
+                } 🎉🎉 It was a blocker for ${blockedIssueUrl} ${tagMap[
+                  "Dependencies"
+                ] || ""}`;
+                axios
+                  .post(SLACK_WEBHOOK_URL, { text, link_names: 1 })
+                  .catch(console.log);
+              });
             }
           });
       }
