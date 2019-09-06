@@ -20,10 +20,12 @@ const EVENT_MAP = {
 
 const tagMap = JSON.parse(TAG_MAP);
 
-const buildIssue = data => `<${data.github_url}|#${data.issue_number} ${data.issue_title}>`;
+const buildIssue = data =>
+  `<https://app.zenhub.com/workspace/o/${data.user_name}/${data.repo}/issues/${data.issue_number}|#${data.issue_number} ${data.issue_title}>`;
 const moveIssue = data =>
-  `${data.user_name} moved ${buildIssue(data)} to ${data.to_pipeline_name} ${tagMap[data.to_pipeline_name] ||
-    ""}`.trim();
+  `${data.user_name} moved ${buildIssue(data)} to ${
+    data.to_pipeline_name
+  } ${tagMap[data.to_pipeline_name] || ""}`.trim();
 
 const getArrayFromString = str => (str || "").split(",").map(t => t.trim());
 
@@ -45,39 +47,54 @@ exports.handler = (event, _, callback) => {
             text = moveIssue(data);
           }
           // There's surely a cleaner way; but this seems to be easiest for now :p
-          if (dependencyPipelines.length > 0 && dependencyPipelines.includes(data.to_pipeline_name)) {
+          if (
+            dependencyPipelines.length > 0 &&
+            dependencyPipelines.includes(data.to_pipeline_name)
+          ) {
             checkDependencies = true;
           }
           break;
         case EVENT_MAP.ESTIMATE_SET:
-          text = `${data.user_name} set an estimate of ${data.estimate} for ${buildIssue(data)}`;
+          text = `${data.user_name} set an estimate of ${
+            data.estimate
+          } for ${buildIssue(data)}`;
           break;
         case EVENT_MAP.ESTIMATE_CLEARED:
           text = `${data.user_name} cleared estimate for ${buildIssue(data)}`;
           break;
         case EVENT_MAP.ISSUE_REPRIORITIZED:
-          text = `${data.user_name} reprioritized ${buildIssue(data)} in ${data.to_pipeline_name}`;
+          text = `${data.user_name} reprioritized ${buildIssue(data)} in ${
+            data.to_pipeline_name
+          }`;
           break;
         default:
           text = null;
       }
       if (text) {
-        axios.post(SLACK_WEBHOOK_URL, { text, link_names: 1 }).catch(console.log);
+        axios
+          .post(SLACK_WEBHOOK_URL, { text, link_names: 1 })
+          .catch(console.log);
       }
       if (checkDependencies) {
         axios
-          .get(`https://api.zenhub.io/p1/repositories/${DEPENDENCY_REPO_ID}/dependencies?access_token=${ZH_API_TOKEN}`)
+          .get(
+            `https://api.zenhub.io/p1/repositories/${DEPENDENCY_REPO_ID}/dependencies?access_token=${ZH_API_TOKEN}`
+          )
           .then(response => {
             // Not doing a strict equality check since types are different
             const blockerIssue = response.data.dependencies.find(
               issue => issue.blocking.issue_number == data.issue_number
             );
             if (blockerIssue) {
-              const blockedIssueUrl = `${data.github_url.replace(/\d+$/, "")}${blockerIssue.blocked.issue_number}`;
+              const blockedIssueUrl = `https://app.zenhub.com/workspace/o/${data.user_name}/${data.repo}/issues/${blockerIssue.blocked.issue_number}`;
               text = `The issue ${buildIssue(data)} is now ${
                 data.to_pipeline_name
-              } 🎉🎉 It was a blocker for ${blockedIssueUrl} ${tagMap["Dependencies"] || ""}`;
-              axios.post(SLACK_WEBHOOK_URL, { text, link_names: 1 }).catch(console.log);
+              } 🎉🎉 It was a blocker for ${blockedIssueUrl} ${tagMap[
+                "Dependencies"
+              ] || ""}`;
+              axios
+                .post(SLACK_WEBHOOK_URL, { text, link_names: 1 })
+                .catch(console.log);
             }
           });
       }
