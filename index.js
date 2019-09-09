@@ -95,9 +95,9 @@ exports.handler = (event, _, callback) => {
                 const blockedIssueUrl = `https://app.zenhub.com/workspace/o/${data.organization}/${data.repo}/issues/${blockerIssue.blocked.issue_number}`;
                 message =
                   message +
-                  `${blockedIssueUrl}${
+                  `<${blockedIssueUrl}|#${blockerIssue.blocked.issue_number} ${
                     index !== blockerIssues.length - 1 ? ", " : ""
-                  }`;
+                  }>`;
               });
 
               message = message + ` ${tagMap["Dependencies"] || ""}`;
