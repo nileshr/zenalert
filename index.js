@@ -85,18 +85,25 @@ exports.handler = (event, _, callback) => {
             const blockerIssues = response.data.dependencies.filter(
               issue => issue.blocking.issue_number == data.issue_number
             );
+
             if (blockerIssues && blockerIssues.length > 0) {
-              blockerIssues.forEach(blockerIssue => {
+              let message = `The issue ${buildIssue(data)} is now ${
+                data.to_pipeline_name
+              } 🎉🎉 It was a blocker for `;
+
+              blockerIssues.forEach((blockerIssue, index) => {
                 const blockedIssueUrl = `https://app.zenhub.com/workspace/o/${data.organization}/${data.repo}/issues/${blockerIssue.blocked.issue_number}`;
-                text = `The issue ${buildIssue(data)} is now ${
-                  data.to_pipeline_name
-                } 🎉🎉 It was a blocker for ${blockedIssueUrl} ${tagMap[
-                  "Dependencies"
-                ] || ""}`;
-                axios
-                  .post(SLACK_WEBHOOK_URL, { text, link_names: 1 })
-                  .catch(console.log);
+                message =
+                  message +
+                  `${blockedIssueUrl}${
+                    index !== blockerIssues.length - 1 ? ", " : ""
+                  }`;
               });
+
+              message = message + ` ${tagMap["Dependencies"] || ""}`;
+              axios
+                .post(SLACK_WEBHOOK_URL, { message, link_names: 1 })
+                .catch(console.log);
             }
           });
       }
