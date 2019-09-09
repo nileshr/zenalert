@@ -21,7 +21,7 @@ const EVENT_MAP = {
 const tagMap = JSON.parse(TAG_MAP);
 
 const buildIssue = data =>
-  `<https://app.zenhub.com/workspace/o/${data.user_name}/${data.repo}/issues/${data.issue_number}|#${data.issue_number} ${data.issue_title}>`;
+  `<https://app.zenhub.com/workspace/o/${data.organization}/${data.repo}/issues/${data.issue_number}|#${data.issue_number} ${data.issue_title}>`;
 const moveIssue = data =>
   `${data.user_name} moved ${buildIssue(data)} to ${
     data.to_pipeline_name
@@ -87,7 +87,7 @@ exports.handler = (event, _, callback) => {
             );
             if (blockerIssues && blockerIssues.length > 0) {
               blockerIssues.forEach(blockerIssue => {
-                const blockedIssueUrl = `https://app.zenhub.com/workspace/o/${data.user_name}/${data.repo}/issues/${blockerIssue.blocked.issue_number}`;
+                const blockedIssueUrl = `https://app.zenhub.com/workspace/o/${data.organization}/${data.repo}/issues/${blockerIssue.blocked.issue_number}`;
                 text = `The issue ${buildIssue(data)} is now ${
                   data.to_pipeline_name
                 } 🎉🎉 It was a blocker for ${blockedIssueUrl} ${tagMap[
